@@ -1,2 +1,14 @@
 # wotd
 A simple command-line word-of-the-day script.
+
+This script manages word-of-the-day words in a sqlite database and reports them out to stdout on demand.
+
+The basic functions are:
+- print the word of the day
+- print a random word from the database
+- add a new word (taking input from a file)
+- edit an existing word (essentially taking input from a file and overwriting the corresponding word in the database)
+
+Words added to the database are tagged with the contributor's username, and future edits are only allowed by that user (or by the owner of the script).
+
+TODO: Bulk load of new words.  Currently words are loaded one by one through text files for each word.
