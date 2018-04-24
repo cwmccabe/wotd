@@ -11,4 +11,7 @@ The basic functions are:
 
 Words added to the database are tagged with the contributor's username, and future edits are only allowed by that user (or by the owner of the script).
 
-TODO: Bulk load of new words.  Currently words are loaded one by one through text files for each word.
+TODO:
+1. Finish the inline TODOs
+2. Bulk load of new words.  Currently words are loaded one by one through text files for each word.
+3. Users tag their favorite words and create their own subsets, composed of words from anyone.

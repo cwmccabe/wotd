@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 ## UTF-8 is important; otherwise you cannot even have UTF-8 characters
@@ -35,7 +35,7 @@ try:
   conn = sqlite3.connect(wotd_db);
   c = conn.cursor();
 except Error as e:
-  print e;
+  print(e);
   sys.exit();
 
 def gentle_quit():
@@ -43,26 +43,26 @@ def gentle_quit():
   sys.exit();
 
 def argerr():
-  print "Invalid input arguments.  For proper usage, type '"+ exe_name +" --h'";
+  print("Invalid input arguments.  For proper usage, type '"+ exe_name +" --h'");
   gentle_quit();
 
 def print_help():
-  print "usage: wotd [OPTION] [FILENAME]";
-  print "[OPTION] can be:"
-  print "(blank)      - just print today's wotd";
-  print "r            - random word from the wotd word bank.";
-  print "a [FILENAME] - add a new word from file.";
-  print "--h / --help - get the help you're reading now.";
+  print("usage: wotd [OPTION] [FILENAME]");
+  print("[OPTION] can be:");
+  print("(blank)      - just print today's wotd");
+  print("r            - random word from the wotd word bank.");
+  print("a [FILENAME] - add a new word from file.");
+  print("--h / --help - get the help you're reading now.");
   gentle_quit();
 
 def print_word_file_format():
-  print """Input file for adding or editing a word must be exactly six lines in this order:
+  print("""Input file for adding or editing a word must be exactly six lines in this order:
   1. word (the word itself, spelled correctly and in common casing)
   2. type (verb, adjective,  etc.)
   3. pronunciation (something like PRO-NUN-SEE-AY-SHUN)
   4. definition (the word's definition)
   5. example (an example of the word's usage)
-  6. interesting fact (something interesting about the word; its etymology, etc.)""" 
+  6. interesting fact (something interesting about the word; its etymology, etc.)""")
 
 def print_random_word():
 ## PRINT RANDOM WORD
@@ -70,8 +70,8 @@ def print_random_word():
   c.execute(sqlstr);
   row = c.fetchone();
 
-  print "Random Word from the WOTD database:";
-  print row[0] + " (" + row[1] + "), [" + row[2] + "], def: " + row[3];
+  print("Random Word from the WOTD database:");
+  print(row[0] + " (" + row[1] + "), [" + row[2] + "], def: " + row[3]);
 
   gentle_quit();
 
@@ -87,8 +87,8 @@ def print_wotd():
     c.execute(sqlstr);
     row = c.fetchone();
     rowid = row[0];
-    print "Today's Word-of-the-Day is:";
-    print row[1] + " (" + row[2] + "), [" + row[3] + "], def: " + row[4];
+    print("Today's Word-of-the-Day is:");
+    print(row[1] + " (" + row[2] + "), [" + row[3] + "], def: " + row[4]);
     ## UPDATE THAT WORD'S RECORD WITH TODAY'S DATE AS wotd_date
     sqlstr = "UPDATE wotd SET wotd_date=date('now') WHERE rowid=" + str(rowid);
     c.execute(sqlstr);
@@ -98,15 +98,15 @@ def print_wotd():
     sqlstr = "SELECT word, type, pronunciation, definition FROM wotd;";
     c.execute(sqlstr);
     row = c.fetchone();
-    print "Today's Word of the Day is:";
-    print row[0] + " (" + row[1] + "), [" + row[2] + "], def: " + row[3];
+    print("Today's Word of the Day is:");
+    print(row[0] + " (" + row[1] + "), [" + row[2] + "], def: " + row[3]);
     gentle_quit();
 
 def add_new_word(filename):
   try:
     filehandle = open(filename, "r");
   except:
-    print "Error: the filename/path you entered (\""+ filename +"\") does not exist or you do not have read permissions for that file.";
+    print("Error: the filename/path you entered (\""+ filename +"\") does not exist or you do not have read permissions for that file.");
 
   new_word = filehandle.read();
   new_word = new_word.splitlines();
@@ -114,7 +114,7 @@ def add_new_word(filename):
   ## CHECK THAT THE WORD FILE HAS EXACTLY SIX LINES:
   word_file_len = len(new_word);
   if word_file_len != 6:
-    print "Error. Incorrect format of new word file.";
+    print("Error. Incorrect format of new word file.");
     print_word_file_format();
     gentle_quit();
 
@@ -125,7 +125,7 @@ def add_new_word(filename):
   row = c.fetchone();
 
   if row[0] >= 1:
-    print "Error: " + new_word[0] + " already exists in the wotd database."
+    print("Error: " + new_word[0] + " already exists in the wotd database.");
     gentle_quit();
 
   username = getpass.getuser();
@@ -148,7 +148,7 @@ def add_new_word(filename):
   new_word = [word_lc] + new_word + [username];
   c.execute(sqlstr, new_word);
   conn.commit();
-  print "Thank you. Your wotd entry for " + new_word[1] + " has been added.";
+  print("Thank you. Your wotd entry for " + new_word[1] + " has been added.");
   filehandle.close();
   gentle_quit();
 
@@ -156,7 +156,7 @@ def edit_word(filename):
   try:
     filehandle = open(filename, "r");
   except:
-    print "Error: the filename/path you entered (\""+ filename +"\") does not exist or you do not have read permissions for that file.";
+    print("Error: the filename/path you entered (\""+ filename +"\") does not exist or you do not have read permissions for that file.");
 
   word_file = filehandle.read();
   word_file = word_file.splitlines();
@@ -164,7 +164,7 @@ def edit_word(filename):
   ## CHECK THAT THE UPDATE WORD FILE HAS EXACTLY SIX LINES:
   word_file_len = len(word_file);
   if word_file_len != 6:
-    print "Error. Incorrect format of new word file.";
+    print("Error. Incorrect format of new word file.");
     print_word_file_format();
     gentle_quit();
 
