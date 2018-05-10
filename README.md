@@ -15,3 +15,5 @@ TODO:
 1. Finish the inline TODOs
 2. Bulk load of new words.  Currently words are loaded one by one through text files for each word.
 3. Users tag their favorite words and create their own subsets, composed of words from anyone.
+4. IRC bot, featuring wotd, wotd r, wotd like [word], and word dislike [word] -- then, allow popularity charts and elimination of bad words
+5. Allow anyone to make changes to any word, improving the definition, example, etc. And keep a revision history of changes.

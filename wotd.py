@@ -6,7 +6,7 @@
 
 import sys, getpass, sqlite3
 
-## SOME GOOD WOTD'S:
+## SOME WOTD'S AS FODDER:
 ## https://www.nytimes.com/column/learning-word-of-the-day
 ## https://www.merriam-webster.com/word-of-the-day/calendar
 ## https://en.oxforddictionaries.com/explore/weird-and-wonderful-words
@@ -38,7 +38,9 @@ except Error as e:
   print(e);
   sys.exit();
 
-def gentle_quit():
+def gentle_quit(str=""):
+  if (str):
+    print(str);
   conn.close();
   sys.exit();
 
@@ -47,12 +49,13 @@ def argerr():
   gentle_quit();
 
 def print_help():
-  print("usage: wotd [OPTION] [FILENAME]");
-  print("[OPTION] can be:");
-  print("(blank)      - just print today's wotd");
-  print("r            - random word from the wotd word bank.");
-  print("a [FILENAME] - add a new word from file.");
-  print("--h / --help - get the help you're reading now.");
+  print("""usage: wotd [OPTION] [FILENAME]
+  [OPTION] can be:
+  (empty/blank)- just print today's wotd
+  r            - print a random word from the wotd word bank.
+  a [FILENAME] - add a new word from file.
+  pf [FILENAME]- print a word from the db to a file, in the same format as an input file.
+  --h / --help - get the help you're reading now.""");
   gentle_quit();
 
 def print_word_file_format():
@@ -92,15 +95,42 @@ def print_wotd():
     ## UPDATE THAT WORD'S RECORD WITH TODAY'S DATE AS wotd_date
     sqlstr = "UPDATE wotd SET wotd_date=date('now') WHERE rowid=" + str(rowid);
     c.execute(sqlstr);
+    conn.commit();
     gentle_quit();
 
   else: ## PRINT TODAY'S WOTD
-    sqlstr = "SELECT word, type, pronunciation, definition FROM wotd;";
+    sqlstr = "SELECT word, type, pronunciation, definition FROM wotd WHERE wotd_date=DATE('now');";
     c.execute(sqlstr);
     row = c.fetchone();
     print("Today's Word of the Day is:");
     print(row[0] + " (" + row[1] + "), [" + row[2] + "], def: " + row[3]);
     gentle_quit();
+
+def print_word_to_file(word):
+  ## TODO: VALIDATE/SANITIZE word
+  sqlstr = "SELECT word, type, example, pronunciation, definition, interesting_fact FROM wotd WHERE word = LOWER(\""+ word +"\");"
+  c.execute(sqlstr);
+  row = c.fetchone();
+
+  if row is None:
+    gentle_quit("Sorry, "+ word +" does not exist in the database.");
+
+  ## CONFIRM THAT USER IS OK WITH OVERWRITING EXISTING FILE, IF IT EXISTS.
+  yn = input("If "+ word +".txt exists, this will overwrite it.  Do you want to proceed? (y/n):")
+  if yn.lower() != 'y':
+    gentle_quit("File write aborted.");
+
+  try:
+    filename = word +".txt";
+    filehandle = open(filename, "w");
+  except:
+    print("Error openning the filename (\""+ filename +"\"). You might not have write permissions for the destination directory.");
+
+  filehandle.write("\n".join(row));
+  filehandle.close();
+  print(filename + " saved.");
+
+  gentle_quit();
 
 def add_new_word(filename):
   try:
@@ -132,16 +162,32 @@ def add_new_word(filename):
 
   sqlstr = "INSERT INTO wotd(word_lc, word, type, pronunciation, definition, example, interesting_fact, contributor_name) VALUES(?,?,?,?,?,?,?,?)";
 
-  ## TODO: VALIDATE word
-#  print "word: " + new_word[0];
-  ## TODO: VALIDATE type
-#  print "type: " + new_word[1];
+  ## VALIDATE AND SANITIZE INPUT:
+
+  ## NEW WORD:
+  if (len(new_word[0])>45):
+    gentle_quit("Input error: New word too long.");
+
+#  if (FN(new_word[0])):
+#    gentle_quit("Input error: Invalid character(s) used in new word.");
+
+  ## TYPE:
+  if new_word[1].lower() not in ["adjective", "conjunction", "determiner", "exclamation", "noun", "preposition", "pronoun", "verb"]:
+    gentle_quit("Input error: New word not of accepted type (adjective, conjunction, determiner, exclamation, noun, preposition, pronoun, verb)");
+
+  ## PRONUNCIATION:
   ## TODO: VALIDATE pronunciation
 #  print "pronunciation: " + new_word[2];
+
+  ## DEFINITION:
   ## TODO: VALIDATE definition
 #  print "definition: " + new_word[3];
+
+  ## EXAMPLE:
   ## TODO: VALIDATE example
 #  print "example: " + new_word[4];
+
+  ## INTERESTING FACT:
   ## TODO: VALIDATE interesting_fact
 #  print "interesting_fact: " + new_word[5];
 
@@ -176,6 +222,8 @@ elif len(sys.argv) == 2 and sys.argv[1] == "r":
     print_random_word();
 elif len(sys.argv) == 2 and (sys.argv[1] == "--h" or sys.argv[1] == "--help"):
     print_help();
+elif len(sys.argv) == 3 and sys.argv[1] == "pf":
+  print_word_to_file(sys.argv[2]);
 elif len(sys.argv) == 3 and sys.argv[1] == "e":
     edit_word();
 elif len(sys.argv) == 3 and sys.argv[1] == "a":
